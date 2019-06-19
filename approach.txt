@@ -1,0 +1,95 @@
+Model Overview
+I modified Matterport's implementation of Mask-RCNN deep neural network for object instance segmentation.
+I adapted the existing model configurations to detect small nuclei in images with varying size and modality.
+I used a Normal image augmentation technique.
+I split the stage1_train dataset into train and validation.
+After training the model using Resnet101 as a backbone encoder and Adam as an optimizer, I improved prediction accuracy by test time augmentation and post-processing the masks.
+
+
+Let's Get Our Hands Dirty.
+Step 1: 
+Mounting the google drive into colab
+
+Step:2
+Importing all necessary package
+    'cv2' for image manipulation
+    'pandas' for reading CSV files and manipulating data frames
+    'numpy' for convert image into numbers machine-understandable format
+
+
+Step3:
+Changing the Home directory
+
+Step4:
+Storing training and testing data in TRAIN_PATH, TEST_PATH
+
+STEP5:
+Using os.walk we make a tree-based traverse get the subdirectory 
+defining the root directory
+defining logs directory
+Download COCO trained weights from Releases if needed
+pre-trained weights for MS COCO to make it easier to start
+
+STEP:6
+Configuration for training on the dataset. Derives from the base Config class and overrides values specific to the dataset.
+
+Giving the configuration a recognizable name
+
+Train on 1 GPU and 1 image per GPU. We can put multiple images on each
+GPU. Batch size is (GPUs * images/GPU).
+
+Number of classes (including background)
+NUM_CLASSES = 1 + 1  # background + nucleus
+
+Use small images for faster training. Set the limits of the small side
+the large side, and that determines the image shape. which is (896, 896)
+
+Using Anchor sorting and filtering (8, 16, 64, 128, 256)
+
+Aim to allow ROI sampling to pick 33% positive ROIs. which is 800
+
+set number of epoch
+set number of validation steps
+
+Backbone is set to resnet101
+
+step 7:
+
+Now adding labels/class to images
+
+in the meantime, we're doing image manipulation, from resizing to masking all done at validation and training data
+
+Generate instance masks for shapes of the given image ID
+
+Handle occlusions
+
+Map class names to class IDs.
+
+Step 8:
+
+Load training and Validation datasets
+
+Step 9:
+Which weights to start with? we're using MS COCO, model 
+
+Step 10:
+
+Train the first head branch which learning rate of 0.001
+which takes 1 epoch and due to computational expenses 
+
+Step 11:
+recreate the model in inference mode
+load the trained weights from  logs directory 
+
+Step 12:
+Visualize the train image class (gt_class_id) by using display instance which will draw box(gt_bbox) and mask(gt_mask) around the image
+
+step 13
+
+visualize the nucleus predicting accuracy with using r['scores']
+
+step 14
+Compute VOC-Style mAP @ IoU=0.5
+Running on 30 images. Increase for better accuracy.
+got mAP:0.75
+
